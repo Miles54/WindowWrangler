@@ -212,7 +212,7 @@ int main(int argc, char* argv[]) {
 		if (arg == "-a" || arg == "/a" || arg == "-A" || arg == "/A") {
 			Print("Window Wrangler");
 			Print("by Miles (Ethan M. Hardt)");
-			Print("version 1.0");
+			Print("version 1.1");
 			Print("");
 			Print("Licensed under MIT");
 			Print("See license.txt for the license");
