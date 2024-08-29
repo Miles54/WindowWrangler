@@ -14,11 +14,14 @@ void Print(std::string Str) {
 }
 
 // Options:
-bool ListHidden		= false;
-bool ListUnopened	= false;
-bool DisplayPID		= false;
-bool CaseSensitive	= true;
-bool SendWMClose	= false;
+bool ListHidden			= false;
+bool ListUnopened		= false;
+bool DisplayPID			= false;
+bool CaseSensitive		= true;
+bool RepositionWindow	= false;
+bool SendWMClose		= false;
+
+POINT RepositionPoint;
 
 // Filtering Parameters:
 std::vector<std::string> LookFor;
@@ -74,12 +77,22 @@ bool Search(std::string Search, std::string Term) {
 
 
 BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM lp) {
-	if (!IsWindowVisible(Window) && !ListHidden) {
-		return TRUE; // specify -h to list hidden windows.
+	bool DoRepos = RepositionWindow;
+	if (!IsWindowVisible(Window)) {
+		if (!ListHidden) {
+			return TRUE; // specify -h to list hidden windows.
+		}
+		DoRepos = false;
+		// Prevents making hidden windows visible.
+		// Programs love making hidden windows (can't blame them, especially when making a modern OpenGL context...)
 	}
 	char Ch[256];
 	if (GetWindowTextA(Window, Ch, 256) > 0) {
 		std::string WindowTitle = Ch;
+		if (WindowTitle == "Program Manager") {
+			DoRepos = false;
+			// Added when trying to keep the taskbar in place, I am using classic start menu.
+		}
 		bool Skip = true;
 		if (LookFor.size() > 0) {
 			for (uint64_t G = 0; G < LookFor.size(); G++) {
@@ -145,20 +158,34 @@ BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM lp) {
 			} else {
 				if (ListUnopened) {
 					Print(WindowTitle + " Belongs to a process we couldn't open" + AdditionalInfo);
+				} else {
+					DoRepos = false;
 				}
 			}
 		} else {
 			if (ListUnopened) {
 				Print(WindowTitle + " Belongs to an unknown process");
+			} else {
+				DoRepos = false;
 			}
 		}
 		if (SendWMClose) {
 			if (PIDValid) {
 				SendMessage(Window, WM_CLOSE, 0, 0);
+				DoRepos = false;
+				// Repositioning and Closing should not happen together..
 			}
 		}
 
+	} else {
+		DoRepos = false;
+		// Prevents moving Classic start menu.
 	}
+	if (DoRepos) {
+		SetWindowPos(Window, HWND_TOP, RepositionPoint.x, RepositionPoint.y, 0, 0, SWP_NOSIZE | SWP_SHOWWINDOW);
+		// Hopefully this helps with someone who moved their window offscreen.
+	}
+
 	return TRUE;
 }
 
@@ -174,7 +201,8 @@ int main(int argc, char* argv[]) {
 			Print("-v or /v			Lists windows of unknown processes (Verbose)");
 			Print("-p or /p			Prints the PID");
 			Print("-i or /i			Search is insensitive to case");
-			Print("-c or /c			Send WM_CLOSE to the listed programs (filter with -f, -nf, and/or -m)");
+			Print("-c or /c			Send WM_CLOSE to the listed windows, close to clicking the close button. (filter with -f, -nf, and/or -m)");
+			Print("-r or /r			Repositions the shown windows of the listed windows to the top and to the mouse (except Program Manager)");
 			Print("-f or /f	[title]		Find a window by title");
 			Print("-nf or /nf	[title]		Filter window out by title");
 			Print("-m or /m	[PID]		Match a window by program ID");
@@ -212,6 +240,9 @@ int main(int argc, char* argv[]) {
 		}
 		if (arg == "-c" || arg == "/c" || arg == "-C" || arg == "/C") {
 			SendWMClose = true;
+		}
+		if (arg == "-r" || arg == "/r" || arg == "-R" || arg == "/R") {
+			RepositionWindow = true;
 		}
 		if (arg == "-f" || arg == "/f" || arg == "-F" || arg == "/F") {
 			if (argi + 1 < argc) {
@@ -252,7 +283,9 @@ int main(int argc, char* argv[]) {
 		Print("please do not use -nm and -m together");
 		return -1;
 	}
-
+	if (RepositionWindow) {
+		GetCursorPos(&RepositionPoint);
+	}
 	EnumWindows(EnumWindowsProc, 0);
 	return 0;
 }
