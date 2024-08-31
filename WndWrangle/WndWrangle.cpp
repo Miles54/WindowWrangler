@@ -91,7 +91,7 @@ BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM lp) {
 		std::string WindowTitle = Ch;
 		if (WindowTitle == "Program Manager") {
 			DoRepos = false;
-			// Added when trying to keep the taskbar in place, I am using classic start menu.
+			// Added when trying to keep the taskbar (classic start menu) in place, this isn't what was needed, but I feel a terrible fate is coming when thinking about removing it.
 		}
 		bool Skip = true;
 		if (LookFor.size() > 0) {
@@ -193,29 +193,45 @@ BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM lp) {
 int main(int argc, char* argv[]) {
 	for (int argi = 0; argi < argc; argi++) {
 		std::string arg = argv[argi];
-		if (arg == "-?" || arg == "/?") {
+		if (arg.size() > 0) {
+			if (arg.at(0) == '/') {
+				arg.at(0) = '-';
+			}
+		}
+		for (uint64_t A = 0; A < arg.size(); A++) {
+			arg.at(A) = Lower(arg.at(A));
+		}
+
+
+
+		if (arg == "-?" || arg == "-help") {
 			Print("Window Wrangler Help:");
-			Print("-a or /a			Shows the about screen");
-			Print("-? or /?			Shows this Help Screen");
-			Print("-h or /h			Lists windows that are hidden");
-			Print("-v or /v			Lists windows of unknown processes (Verbose)");
-			Print("-p or /p			Prints the PID");
-			Print("-i or /i			Search is insensitive to case");
-			Print("-c or /c			Send WM_CLOSE to the listed windows, close to clicking the close button. (filter with -f, -nf, and/or -m)");
-			Print("-r or /r			Repositions the shown windows of the listed windows to the top and to the mouse (except Program Manager)");
-			Print("-f or /f	[title]		Find a window by title");
-			Print("-nf or /nf	[title]		Filter window out by title");
-			Print("-m or /m	[PID]		Match a window by program ID");
-			Print("-nm or /nm	[PID]		Unmatch a window by program ID");
+			Print("Usage: WndWrangle.exe [switch arguments]");
+			Print("");
+			Print("for all listed arguments below, you can use either / or -");
+			Print("-about					Shows the about screen");
+			Print("-license				Displays the license");
+			Print("-? or -help				Shows this Help Screen");
+			Print("-h or -hidden				Lists windows that are hidden");
+			Print("-v or -verbose				Lists windows of unknown processes (Verbose)");
+			Print("-p or -displaypid			Prints the PID");
+			Print("-i or -insensitive			Search is insensitive to case");
+			Print("-c or -close				Send WM_CLOSE to the listed windows. (filter with -f, -nf, and/or -m)");
+			Print("-r or -reposition			Repositions the visible listed windows to the mouse (except Program Manager)");
+			Print("-f or -find	[title]			Find a window by title");
+			Print("-nf or -negativefind	[title]		Filter window out by title");
+			Print("-m or -match	[PID]			Match a window by program ID");
+			Print("-nm or -negativematch	[PID]		Unmatch a window by program ID");
 			return 0;
 		}
-		if (arg == "-a" || arg == "/a" || arg == "-A" || arg == "/A") {
+		if (arg == "-about") {
 			Print("Window Wrangler");
 			Print("by Miles (Ethan M. Hardt)");
-			Print("version 1.1");
+			Print("version 1.1.1");
 			Print("");
 			Print("Licensed under MIT");
 			Print("See license.txt for the license");
+			Print("or use -license");
 			Print("(Please do not change the");
 			Print("license for downstream distributions)");
 			Print("");
@@ -226,31 +242,55 @@ int main(int argc, char* argv[]) {
 			Print("It is included for legal reasons.");
 			return 0;
 		}
-		if (arg == "-h" || arg == "/h" || arg == "-H" || arg == "/H") {
+		if (arg == "-license") {
+			Print("MIT License");
+			Print("");
+			Print("Copyright (c) 2024 Ethan Miles Hardt");
+			Print("");
+			Print("Permission is hereby granted, free of charge, to any person obtaining a copy");
+			Print("of this software and associated documentation files (the \"Software\"), to deal");
+			Print("in the Software without restriction, including without limitation the rights");
+			Print("to use, copy, modify, merge, publish, distribute, sublicense, and/or sell");
+			Print("copies of the Software, and to permit persons to whom the Software is");
+			Print("furnished to do so, subject to the following conditions:");
+			Print("");
+			Print("The above copyright notice and this permission notice shall be included in all");
+			Print("copies or substantial portions of the Software.");
+			Print("");
+			Print("THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR");
+			Print("IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,");
+			Print("FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE");
+			Print("AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER");
+			Print("LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,");
+			Print("OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE");
+			Print("SOFTWARE.");
+			return 0;
+		}
+		if (arg == "-h" || arg == "-hidden") {
 			ListHidden = true;
 		}
-		if (arg == "-v" || arg == "/v" || arg == "-V" || arg == "/V") {
+		if (arg == "-v" || arg == "-verbose") {
 			ListUnopened = true;
 		}
-		if (arg == "-p" || arg == "/p" || arg == "-P" || arg == "/P") {
+		if (arg == "-p" || arg == "-displaypid") {
 			DisplayPID = true;
 		}
-		if (arg == "-i" || arg == "/i" || arg == "-I" || arg == "/I") {
+		if (arg == "-i" || arg == "-insensitive") {
 			CaseSensitive = false;
 		}
-		if (arg == "-c" || arg == "/c" || arg == "-C" || arg == "/C") {
+		if (arg == "-c" || arg == "-close") {
 			SendWMClose = true;
 		}
-		if (arg == "-r" || arg == "/r" || arg == "-R" || arg == "/R") {
+		if (arg == "-r" || arg == "-reposition" || arg == "-move") {
 			RepositionWindow = true;
 		}
-		if (arg == "-f" || arg == "/f" || arg == "-F" || arg == "/F") {
+		if (arg == "-f" || arg == "-find") {
 			if (argi + 1 < argc) {
 				LookFor.push_back(std::string(argv[argi + 1]));
 				argi++;
 			}
 		}
-		if (arg == "-m" || arg == "/m" || arg == "-M" || arg == "/M") {
+		if (arg == "-m" || arg == "-match" || arg == "-pid" || arg == "-matchpid") {
 			if (argi + 1 < argc) {
 				try {
 					MatchPID.push_back(std::stoi(std::string(argv[argi + 1])));
@@ -261,13 +301,13 @@ int main(int argc, char* argv[]) {
 				}
 			}
 		}
-		if (arg == "-nf" || arg == "/nf" || arg == "-NF" || arg == "/NF") {
+		if (arg == "-nf" || arg == "-negativefind") {
 			if (argi + 1 < argc) {
 				nLookFor.push_back(std::string(argv[argi + 1]));
 				argi++;
 			}
 		}
-		if (arg == "-nm" || arg == "/nm" || arg == "-NM" || arg == "/NM") {
+		if (arg == "-nm" || arg == "-negativematch" || arg == "-negativepid" || arg == "-negativematchpid") {
 			if (argi + 1 < argc) {
 				try {
 					nMatchPID.push_back(std::stoi(std::string(argv[argi + 1])));
@@ -280,7 +320,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	if (nMatchPID.size() > 0 && MatchPID.size() > 0) {
-		Print("please do not use -nm and -m together");
+		Print("please do not match by PID and exclude by PID together");
 		return -1;
 	}
 	if (RepositionWindow) {
