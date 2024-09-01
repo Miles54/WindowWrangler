@@ -1,7 +1,7 @@
 # Window Wrangler
 An application to list all open windows on windows.
 
-to get started, `wndwrangle -?` should give you all the information you need.
+to get started, `wndwrangle /?` should give you all the information you need.
 
 
 
