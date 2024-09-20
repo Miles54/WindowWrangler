@@ -439,7 +439,7 @@ int main(int argc, char* argv[]) {
 		if (arg == "-about") {
 			PrintLine("Window Wrangler");
 			PrintLine("by Miles (Ethan M. Hardt)");
-			PrintLine("version 1.1.1");
+			PrintLine("version 1.1.2");
 			PrintLine("");
 			PrintLine("Licensed under MIT");
 			PrintLine("See license.txt for the license");
