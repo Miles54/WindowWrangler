@@ -194,7 +194,6 @@ BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM lp) {
 	char Ch[256];
 	if (GetWindowTextA(Window, Ch, 256) > 0) {
 		std::string WindowTitle = Ch;
-		MaybeColorPrint(WindowTitle, C_Title);
 
 		if (WindowTitle == "Program Manager") {
 			DoRepos = false;
@@ -245,6 +244,7 @@ BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM lp) {
 			if (!PIDValid) {
 				return TRUE;
 			}
+			MaybeColorPrint(WindowTitle, C_Title);
 
 			char Ch2[4096];
 			/*///
@@ -282,6 +282,7 @@ BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM lp) {
 			}
 		} else {
 			if (ListUnopened) {
+				MaybeColorPrint(WindowTitle, C_Title);
 				MaybeColorPrint(" belongs to an unknown process", C_Main);
 				//PrintLine(WindowTitle + " Belongs to an unknown process");
 			} else {
@@ -420,26 +421,26 @@ int main(int argc, char* argv[]) {
 			PrintLine("Usage: WndWrangle.exe [switch arguments]");
 			PrintLine("");
 			PrintLine("for all listed arguments below, you can use either / or -");
-			PrintLine("-about					Shows the about screen");
-			PrintLine("-license				Displays the license");
-			PrintLine("-? or -help				Shows this Help Screen");
-			PrintLine("-h or -hidden				Lists windows that are hidden");
-			PrintLine("-v or -verbose				Lists windows of unknown processes (Verbose)");
-			PrintLine("-p or -displaypid			Prints the PID");
-			PrintLine("-i or -insensitive			Search is insensitive to case");
-			PrintLine("-c or -close				Send WM_CLOSE to the listed windows. (filter with -f, -nf, and/or -m)");
-			PrintLine("-r or -reposition			Repositions the visible listed windows to the mouse (except Program Manager)");
-			PrintLine("-f or -find	[title]			Find a window by title");
-			PrintLine("-nf or -negativefind	[title]		Filter window out by title");
-			PrintLine("-m or -match	[PID]			Match a window by program ID");
-			PrintLine("-nm or -negativematch	[PID]		Unmatch a window by program ID");
-			PrintLine("-col or -color 		Unmatch a window by program ID");
+			PrintLine("/about					Shows the about screen");
+			PrintLine("/license				Displays the license");
+			PrintLine("/? or /help				Shows this Help Screen");
+			PrintLine("/h or /hidden				Lists windows that are hidden");
+			PrintLine("/v or /verbose				Lists windows of unknown processes (Verbose)");
+			PrintLine("/p or /displaypid			Prints the PID");
+			PrintLine("/i or /insensitive			Search is insensitive to case");
+			PrintLine("/c or /close				Send WM_CLOSE to the listed windows. (filter with -f, -nf, and/or -m)");
+			PrintLine("/r or /reposition			Repositions the visible listed windows to the mouse (except Program Manager)");
+			PrintLine("/f or /find	[title]			Find a window by title");
+			PrintLine("/nf or /negativefind	[title]		Filter window out by title");
+			PrintLine("/m or /match	[PID]			Match a window by program ID");
+			PrintLine("/nm or /negativematch	[PID]		Unmatch a window by program ID");
+			PrintLine("/col or /color 				Print in Color");
 			return 0;
 		}
 		if (arg == "-about") {
 			PrintLine("Window Wrangler");
 			PrintLine("by Miles (Ethan M. Hardt)");
-			PrintLine("version 1.1.2");
+			PrintLine("version 1.1.3");
 			PrintLine("");
 			PrintLine("Licensed under MIT");
 			PrintLine("See license.txt for the license");
