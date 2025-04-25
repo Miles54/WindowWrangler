@@ -15,7 +15,7 @@ wndwrangle /h
 will both do the same thing (list hidden windows)
 
 
-Arguments:
+Commands:
 ```
 /about
   displays version information. Exits without doing anything else.
@@ -44,12 +44,20 @@ Arguments:
 /nm or /negativematch [PID]
   Filters windows based on associated Program ID matching the [PID] parameter. However, matching windows are excluded.
 /col or /color
-  Displays list in colors defined in the registry at (HKEY_CURRENT_USER\SOFTWARE\WindowWrangler)
+  Enables the use of colors, defined in the registry at (HKEY_CURRENT_USER\SOFTWARE\WindowWrangler) or text file (Config.txt)
+/pm or /postmessage [msg] [wparam] [lparam]
+  Posts a message to the listed windows' message queues
+/pm or /sendmessage [msg] [wparam] [lparam]
+  Sends a message to the listed windows' message queues
+/command [command]
+  Describes the command in detail, then exits
+/rs or /resize [width] [height]
+  resizes the listed windows to match the width and height specified.
 ```
 
 
 ## Window Wrangler Colors:
-Window Wrangler's colors used with the `/col` parameter can be customized by adding/editing the registry keys for them.
+Window Wrangler's colors used with the `/col` parameter can be customized by adding/editing the registry keys for them or creating a `Config.txt` file.
 
 Within the `HKEY_CURRENT_USER\SOFTWARE\WindowWrangler` Registry Folder, the following REG_SZ values are checked:
 ```
@@ -59,6 +67,8 @@ Color_PID
 Color_Title
 Color_Extra
 ```
+These are also checked in the `Config.txt` file.
+
 Their values can, with any capitalization, be:
 ```
 Red,
@@ -67,17 +77,17 @@ Blue,
 Magenta,
 Yellow,
 Cyan
-Dark Red, DarkRed,
-Dark Green, DarkGreen,
-Dark Blue, DarkBlue,
-Dark Magenta, DarkMagenta,
-Dark Yellow, DarkYellow,
-Dark Cyan, DarkCyan,
+Dark Red, DarkRed, Dark_Red
+Dark Green, DarkGreen, Dark_Green
+Dark Blue, DarkBlue, Dark_Blue
+Dark Magenta, DarkMagenta, Dark_Magenta
+Dark Yellow, DarkYellow, Dark_Yellow
+Dark Cyan, DarkCyan, Dark_Cyan
 White,
-Light Gray, Light Grey, Light Grae, Gray, Grey, Grae, LightGray, LightGrey, LightGrae,
-Dark Gray, Dark Grey, Dark Grae, DarkGray, DarkGrey, DarkGrae
+Light Gray, Light Grey, Light Grae, Gray, Grey, Grae, LightGray, LightGrey, LightGrae, Light_Gray, Light_Grey, Light_Grae
+Dark Gray, Dark Grey, Dark Grae, DarkGray, DarkGrey, DarkGrae, Dark_Gray, Dark_Grey, Dark_Grae
 Black
 ```
-Where all the values on a given line refer to the same color.
+Where all the values on a given line refer to the same color. Color names are case-insensitive.
 (Yes, I chose to make up a word "Grae" to be deliberately on the fence about how to spell Grae. I'm sorry to any future historians who theorize about if this is a real word or not.)
 
